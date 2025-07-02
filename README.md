@@ -17,7 +17,12 @@ It follows a description of what do you need to run the sane function.
 ### required library
 Make sure to have installed "tuneR", "seewave", "dplyr", "progress", "tools". It is not necessary to load any of them, it will be done by the sane function itself.
 ### arguments
-- _data_ = the dataset containing the information about the location of signals thoughout each recording. It must be structured similarly to the BirdNET output
+- _data_ = the dataset containing the information about the location of signals thoughout each recording. It must be structured similarly to the following one.
+| Filename                                 | Start (s) | End (s) | Class | Description   | Confidence |
+|------------------------------------------|-----------|---------|-------|---------------|------------|
+| Ada-Borghese-1\AB01\20240324_170000.WAV | 0.0       | 3.0     | biotic | Biotic sound | 0.9807     |
+| Ada-Borghese-1\AB01\20240324_170000.WAV | 3.0       | 6.0     | biotic | Biotic sound | 0.8176     |
+| ...                                      | ...       | ...     | ...   | ...           | ...        |
 - _threshold_ = the minimum confidence score to achieve the desired level of precision. Default is 0.1. 
 - _class.specific_ = this argument determines if the SANE computed will be global, i.e., of the complessive anthrophony, or one for each class of disturbance. Default is FALSE. When "TRUE", the final dataset will include one column for each disturbance class whose name will consists in "SANE" + "Class name".
 - _freq.range_ = a vector of length 2 to specify the frequency limits of the analysis (in Hz). Default is the audible spectrum for humans (20-20000 Hz). 
