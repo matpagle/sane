@@ -19,11 +19,11 @@ Make sure to have installed "tuneR", "seewave", "dplyr", "progress", "tools". It
 ### arguments
 - _data_ = the dataset containing the information about the location of signals thoughout each recording. It must be structured similarly to the following one.
 
-| Filename                                 | Start (s) | End (s) | Class  | Description  | Confidence |
-| ---------------------------------------- | --------- | ------- | ------ | ------------ | ---------- |
-| Ada-Borghese-1/AB01/20240324\_170000.WAV | 0.0       | 3.0     | biotic | Biotic sound | 0.9807     |
-| Ada-Borghese-1/AB01/20240324\_170000.WAV | 3.0       | 6.0     | biotic | Biotic sound | 0.8176     |
-| ...                                      | ...       | ...     | ...    | ...          | ...        |
+| Filename                                 | Start (s) | End (s) | Class  | Confidence |
+| ---------------------------------------- | --------- | ------- | ------ | ---------- |
+| Ada-Borghese-1/AB01/20240324\_170000.WAV | 0.0       | 3.0     | Engine | 0.9807     |
+| Ada-Borghese-1/AB01/20240324\_170000.WAV | 3.0       | 6.0     | Gun    | 0.8176     |
+| ...                                      | ...       | ...     | ...    | ...        |
 
 - _threshold_ = the minimum confidence score to achieve the desired level of precision. Default is 0.1. 
 - _class.specific_ = this argument determines if the SANE computed will be global, i.e., of the complessive anthrophony, or one for each class of disturbance. Default is FALSE. When "TRUE", the final dataset will include one column for each disturbance class whose name will consists in "SANE" + "Class name".
