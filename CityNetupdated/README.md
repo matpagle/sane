@@ -10,6 +10,8 @@ Specifically:
   rather than a simple percentage of seconds containing anthrophony. The csv will be written step-by-step to avoid frustrating situation (We speak from experience).
 
 The code we provided itself it is not sufficient for the CityNet classifier, you need to rely on the original repository (link above).
+
 To run, in the conda prompt:
+
 **_python multi_predict_updated.py "#audio directory (recursive)" --output_dir "#output directory (traditional CityNet output will also be produced)" --window_size 3 --threshold, default none --plot, default no
 
