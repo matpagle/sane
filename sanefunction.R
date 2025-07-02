@@ -57,7 +57,7 @@ sane <- function(data,
   if (write.fullM) dir.create(dirname(fullM_path), recursive = TRUE, showWarnings = FALSE)
   if (write.sane)  dir.create(dirname(sane_path), recursive = TRUE, showWarnings = FALSE)
   
-  # --- gestione resume ---
+  # --- resume ---
   processed_keys <- character(0)
   if (resume && file.exists(fullM_path)) {
     existing <- read.csv(fullM_path, sep=";", stringsAsFactors = FALSE)
@@ -120,15 +120,24 @@ sane <- function(data,
   
   close(pb)
   
-  if (class.specific) {
-    sane_df <- completeM %>%
-      group_by(filename, Class) %>%
-      summarise(across(starts_with("SANE_"), sum, na.rm = TRUE), .groups = 'drop')
-  } else {
-    sane_df <- completeM %>%
-      group_by(filename) %>%
-      summarise(SANE = sum(SANE, na.rm = TRUE), .groups = 'drop')
-  }
+if (class.specific) {
+  # Aggrega per filename e classe
+  sane_df_class <- completeM %>%
+    group_by(filename, Class) %>%
+    summarise(across(starts_with("SANE_"), sum, na.rm = TRUE), .groups = 'drop')
+  
+  # Ricalcola il valore globale come somma delle SANE per ciascun filename
+  sane_df_global <- sane_df_class %>%
+    group_by(filename) %>%
+    summarise(Global_SANE = sum(across(starts_with("SANE_")), na.rm = TRUE), .groups = 'drop')
+  
+  # Unisci global e class-specific
+  sane_df <- left_join(sane_df_global, sane_df_class, by = "filename")
+} else {
+  sane_df <- completeM %>%
+    group_by(filename) %>%
+    summarise(SANE = sum(SANE, na.rm = TRUE), .groups = 'drop')
+}
   
   if (write.sane) {
     write.table(sane_df, file = sane_path,
