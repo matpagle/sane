@@ -26,7 +26,7 @@ Make sure to have installed "tuneR", "seewave", "dplyr", "progress", "tools". It
 | ...                                      | ...       | ...     | ...    | ...        |
 
 - _threshold_ = the minimum confidence score to achieve the desired level of precision. Default is 0.1. 
-- _class.specific_ = this argument determines if the SANE computed will be global, i.e., of the complessive anthrophony, or one for each class of disturbance. Default is FALSE. When "TRUE", the final dataset will include one column for each disturbance class whose name will consists in "SANE" + "Class name".
+- _class.specific_ = logical. This argument determines if the SANE computed will be only global, i.e., of the complessive anthrophony, or global and one for each class of disturbance. Default is FALSE. When "TRUE", the final dataset will include one column for each disturbance class whose name will consists in "SANE" + "Class name".
 - _freq.range_ = a vector of length 2 to specify the frequency limits of the analysis (in Hz). Default is the audible spectrum for humans (20-20000 Hz). 
 - _class.col_ = a character that specifify the name of the column in data that contains class labels. Default is "Class".
 - _filename.col_ = a character that specifify the name of the column in data that contains audio file's path and, consequently, its univoque identifier. Default is "Filename".
