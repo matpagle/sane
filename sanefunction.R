@@ -57,7 +57,7 @@ sane <- function(data,
   if (write.fullM) dir.create(dirname(fullM_path), recursive = TRUE, showWarnings = FALSE)
   if (write.sane)  dir.create(dirname(sane_path), recursive = TRUE, showWarnings = FALSE)
   
-  # --- resume ---
+  # --- gestione resume ---
   processed_keys <- character(0)
   if (resume && file.exists(fullM_path)) {
     existing <- read.csv(fullM_path, sep=";", stringsAsFactors = FALSE)
@@ -72,8 +72,8 @@ sane <- function(data,
   
   to_process <- which(!(all_keys %in% processed_keys))
   
-  pb <- txtProgressBar(min = 0, max = length(to_process), style = 3)
-  
+  pb <- txtProgressBar(min = 0, max = length(all_keys), style = 3)
+
   for (j in seq_along(to_process)) {
     i <- to_process[j]
     
@@ -115,29 +115,20 @@ sane <- function(data,
                   append = TRUE)
     }
     
-    setTxtProgressBar(pb, j)
+    setTxtProgressBar(pb, length(processed_keys) + j)
   }
   
   close(pb)
   
-if (class.specific) {
-  # Aggrega per filename e classe
-  sane_df_class <- completeM %>%
-    group_by(filename, Class) %>%
-    summarise(across(starts_with("SANE_"), sum, na.rm = TRUE), .groups = 'drop')
-  
-  # Ricalcola il valore globale come somma delle SANE per ciascun filename
-  sane_df_global <- sane_df_class %>%
-    group_by(filename) %>%
-    summarise(Global_SANE = sum(across(starts_with("SANE_")), na.rm = TRUE), .groups = 'drop')
-  
-  # Unisci global e class-specific
-  sane_df <- left_join(sane_df_global, sane_df_class, by = "filename")
-} else {
-  sane_df <- completeM %>%
-    group_by(filename) %>%
-    summarise(SANE = sum(SANE, na.rm = TRUE), .groups = 'drop')
-}
+  if (class.specific) {
+    sane_df <- completeM %>%
+      group_by(filename, Class) %>%
+      summarise(across(starts_with("SANE_"), sum, na.rm = TRUE), .groups = 'drop')
+  } else {
+    sane_df <- completeM %>%
+      group_by(filename) %>%
+      summarise(SANE = sum(SANE, na.rm = TRUE), .groups = 'drop')
+  }
   
   if (write.sane) {
     write.table(sane_df, file = sane_path,
@@ -153,3 +144,4 @@ if (class.specific) {
   
   return(sane_df)
 }
+
