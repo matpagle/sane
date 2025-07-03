@@ -57,7 +57,7 @@ sane <- function(data,
   if (write.fullM) dir.create(dirname(fullM_path), recursive = TRUE, showWarnings = FALSE)
   if (write.sane)  dir.create(dirname(sane_path), recursive = TRUE, showWarnings = FALSE)
   
-  # --- gestione resume ---
+  # --- resume ---
   processed_keys <- character(0)
   if (resume && file.exists(fullM_path)) {
     existing <- read.csv(fullM_path, sep=";", stringsAsFactors = FALSE)
