@@ -1,4 +1,4 @@
-# sane
+# SANE
 This repository contains the mighty R function for the SANE computation, a novel acoustic index for measuring anthropogenic noise levels in terrestrial ecosystems.
 
 In case you were wondering, SANE is an acronym that stands for _Selective Anthropogenic Noise Exposure_. Now that we have answered the most fearsome question, let’s move on to less serious things.
