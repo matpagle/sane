@@ -15,6 +15,8 @@ The code we provided itself it is not sufficient for the CityNet classifier, you
 
 To run it, in the conda prompt:
 
-**_python multi_predict_updated.py "#audio directory (recursive)" --output_dir "#output directory (traditional CityNet output will also be produced)" --window_size 3 --threshold, default none --plot, default no
+```bash 
+python multi_predict_updated.py "#audio directory (recursive)" --output_dir "#output directory (traditional CityNet output will also be produced)" --window_size 3 --threshold, default none --plot, default no
+```
 
 Be sure to put our script into the citynet folder.
