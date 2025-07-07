@@ -4,7 +4,7 @@ in the original pubblication of Fairbrass _et al._ (2018), to which we encourage
 Thus, we
 we modified the [_multi_predict.py_](https://github.com/mdfirman/CityNet/blob/master/multi_predict.py) fuction provided into the [CityNet repository](https://github.com/mdfirman/CityNet/tree/master).
 Specifically:
-- our script, by default, does not save the activity plots to reduce disk usage. If do you need plots expplicit --save_plots yes command-line option.
+- our script, by default, does not save the activity plots to reduce disk usage. If do you need plots explicit --save_plots yes command-line option.
 - The temporal window size used for classification is now user-configurable through the --window_size argument and must be specified according to the desired temporal resolution.
   Originally, CityNet works with 1 second windows, however, to have a better comparison with BirdNET, we used 3 seconds temporal windows.
 - With our script, users can specify a minimum confidence threshold using the --confidence_threshold command-line argument, ensuring that only signals with confidence scores above this value are retained in the output.
@@ -17,4 +17,4 @@ To run it, in the conda prompt:
 
 **_python multi_predict_updated.py "#audio directory (recursive)" --output_dir "#output directory (traditional CityNet output will also be produced)" --window_size 3 --threshold, default none --plot, default no
 
-Be sure to put our script into the citynet cartel
+Be sure to put our script into the citynet folder.
