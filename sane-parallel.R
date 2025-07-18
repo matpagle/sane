@@ -168,30 +168,4 @@ sane <- function(data,
 }
 
 
-citynet <- read.csv("C:\\Users\\ASUS\\Desktop\\citynetoutput\\Urbis_Recs\\tabular_predictions.csv")
-citynetH <- subset(citynet, Class=="anthrop")
-library(progressr)
-handlers("txtprogressbar") 
-library(furrr)
-library(future)
-
-plan(multisession, workers = floor(parallel::detectCores() * 0.6))
-
-sane(data = citynetH, 
-     threshold = 0.1, 
-     class.specific = FALSE,
-     freq.range = c(20, 20000), 
-     class.col = "Class",
-     filename.col = "Filename", 
-     start.col = "Start..s.",
-     end.col = "End..s.",  
-     confidence.col = "Confidence",
-     audio.dir = "D:\\Urbis_Recs", 
-     write.fullM = TRUE, 
-     fullM_path = "C:\\Users\\ASUS\\Desktop\\noisecorrect\\full_M.csv",
-     write.sane = TRUE, 
-     sane_path = "C:\\Users\\ASUS\\Desktop\\noisecorrect\\sane.csv",
-     resume = TRUE,
-     parallel = TRUE,
-     cores.percentage = 0.6)
 
