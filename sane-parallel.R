@@ -98,7 +98,7 @@ sane <- function(data,
     if (ext != "wav") return(NULL)
     
     audio <- tryCatch({
-      readWave(file_path, from = max(0, data$Start[i]), to = min(300, data$End[i]), unit = "seconds")
+      readWave(file_path, from = max(0, data$Start[i]), to = data$End[i], unit = "seconds")
     }, error = function(e) return(NULL))
     
     if (is.null(audio)) return(NULL)
