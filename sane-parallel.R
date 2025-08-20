@@ -24,11 +24,11 @@ sane <- function(data,
   library(tools)
   library(furrr)
   library(future)
-  options(future.globals.maxSize = 2 * 1024^3) # currently set 2GB as worker's limits, default, 500Mb, is too low for our audio-files, it could depends on our directory?
+  options(future.globals.maxSize = 2 * 1024^3) # currently set 2GB as worker's limits, default, 500Mb, is too low for our audio-files, it could depends on the dimension of your environment
   
   start_time <- Sys.time()
   
-  # Verifica colonne
+  # Columns check
   required_cols <- c(class.col, filename.col, confidence.col, start.col, end.col)
   missing <- setdiff(required_cols, names(data))
   if (length(missing) > 0) stop(paste("Missing columns:", paste(missing, collapse = ", ")))
@@ -91,7 +91,7 @@ sane <- function(data,
                 append = file.exists(fullM_path))
   }
   
-  # Scrittura riga per riga
+  # Row by row file writing
   process_row <- function(i) {
     file_path <- data$path[i]
     ext <- tolower(file_ext(file_path))
@@ -134,7 +134,7 @@ sane <- function(data,
     close(pb)
   }
   
-  # fullM
+  # full M file, it is necessary for the resume
   completeM <- if (!is.null(existing)) existing else data.frame()
   if (file.exists(fullM_path)) {
     fullM_new <- read.csv(fullM_path, sep = ";", stringsAsFactors = FALSE)
