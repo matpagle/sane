@@ -17,7 +17,8 @@ More details are available from our paper.
 ## How to run BirdNET for Human Noise recognition
 BirdNET is an amazing tool that can be run through various support, such as [R](https://github.com/birdnet-team/birdnetR) or [python](https://github.com/birdnet-team/birdnet). A user-friendly [GUI-version](https://github.com/birdnet-team/BirdNET-Analyzer) is also available.
 For Human Noise recognition it is necessary to provide to BirdNET an [_ad-hoc_ species list](https://github.com/matpagle/sane/blob/main/human_noise_list.txt) that includes the anthropophony classes it is currently able to detect. This list can be used on its own or combined with other species lists that include taxa of interest.
-We strongly recommend the following set up: **precision** = 0.1, **overlap** = 2,  **sensitivity** = 1
+
+We strongly recommend the following BirdNET-analyzer set up: **precision** = 0.1, **overlap** = 2,  **sensitivity** = 1.
 ## SANE function
 It follows a description of what do you need to run the SANE function, which computes the Mean Amplitude index for every human noise signal identified and that will sum them in order to obtain a SANE value for each recording.
 ### Required libraries
