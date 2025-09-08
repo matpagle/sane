@@ -17,13 +17,14 @@ sane <- function(data,
                  cores.percentage = 0.5,
                  batch_size = 100) {
   
-  library(tuneR)
-  library(seewave)
-  library(dplyr)
-  library(progress)
-  library(tools)
-  library(furrr)
-  library(future)
+  # Load required packages; if not installed, install them
+  pkgs_list <- c("tuneR", "seewave", "dplyr", "progress", "tools", "furrr", "future")
+  for (pkg in pkgs_list) {
+    if (!require(pkg, character.only = TRUE)) {
+      install.packages(pkg, dependencies = TRUE)
+      library(pkg, character.only = TRUE)
+    }
+  }
   options(future.globals.maxSize = 2 * 1024^3) # currently set 2GB as worker's limits, default, 500Mb, is too low for our audio-files, it could depends on the dimension of your environment
   
   start_time <- Sys.time()
