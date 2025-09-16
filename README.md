@@ -18,7 +18,8 @@ More details are available from our paper.
 BirdNET is an amazing tool that can be run through various support, such as [R](https://github.com/birdnet-team/birdnetR) or [python](https://github.com/birdnet-team/birdnet). A user-friendly [GUI-version](https://github.com/birdnet-team/BirdNET-Analyzer) is also available.
 For Human Noise recognition it is necessary to provide to BirdNET an [_ad-hoc_ species list](https://github.com/matpagle/sane/blob/main/human_noise_list.txt) that includes the anthropophony classes it is currently able to detect. This list can be used on its own or combined with other species lists that include taxa of interest.
 
-We strongly recommend the following BirdNET-analyzer set up: **precision** = 0.1, **overlap** = 2,  **sensitivity** = 1.
+**NOTE:** Increasing segment overlap has been shown to substantially improve BirdNET's recall for biophony, and our paper shows a neat increase in recall for anthropogenic sounds as well, therefore we strongly recommend the following BirdNET-analyzer set up to maximize initial recall: **minimum precision** = 0.1, **segments overlap** = 2,  **sensitivity** = 1. 
+
 ## SANE function
 It follows a description of what do you need to run the SANE function, which computes the Mean Amplitude index for every human noise signal identified and that will sum them in order to obtain a SANE value for each recording.
 ### Required libraries
@@ -32,7 +33,7 @@ Make sure to have installed "tuneR", "seewave", "dplyr", "progress", "tools". It
 | Ada-Borghese-1/AB01/20240324\_170000.WAV | 3.0       | 6.0     | Gun    | 0.8176     |
 | ...                                      | ...       | ...     | ...    | ...        |
 
-- _threshold_ = the minimum confidence score to achieve the desired level of precision. Default is 0.1. 
+- _threshold_ = the minimum confidence score to achieve the desired level of precision. Default is 0.1 (see "BirdNET validation" paragraph in our paper (https://www.youtube.com/watch?v=6YsNRnZRgg8&list=RD6YsNRnZRgg8&start_radio=1) ). 
 - _class.specific_ = logical. This argument determines if the SANE computed will be only global, i.e., of the complessive anthrophony, or global and one for each class of disturbance. Default is FALSE. When "TRUE", the final dataset will include one column for each disturbance class whose name will consists in "SANE" + "Class name".
 - _freq.range_ = a vector of length 2 to specify the frequency limits of the analysis (in Hz). Default is the audible spectrum for humans (20-20000 Hz). 
 - _class.col_ = a character that specifies the name of the column in data that contains class labels. Default is "Class".
@@ -41,11 +42,11 @@ Make sure to have installed "tuneR", "seewave", "dplyr", "progress", "tools". It
 - _end.col_ = a character that specifies the name of the column in data that contains the temporal information about the end of a specific acoustic signal/event. Default is "End..s.". The column must be numeric, indicating the number of seconds from the beginning of the recording.  
 - _confidence.col_ = a character that specifies the name of the column in data that contains the confidence score associated with a certain acoustic signal/event. Default is "Confidence". It must be numeric.
 - _audio.dir_ = the path of the cartel containing the audio files. If the cartel contains sub-cartel, be sure that your "Filename" column contain rest of each audio path.
-- _write.fullM_ = logical, if TRUE (Default) a csv will be written with all the M indices computed associeted with their acoustic signal. The csv will be written step-by-step, then, Windows-Users do not open it to avoid any kind of error. When FALSE no csv will be written.
+- _write.fullM_ = logical, if TRUE (Default) a csv will be written with all the M indices computed associeted with their acoustic signal. The csv will be written step-by-step, therefore Windows-Users should not open the csv during the computation to avoid conflicts. When FALSE no csv will be written.
 - _fullM_path_ = the path for the M dataset csv, it must contain the name of the file that will be written.
 - _write.sane_ = logical, if TRUE (Default) a csv will be written with all the SANE indices computed associeted with the respective audio recording. When FALSE no csv will be written.
 - _sane_path_ = the path for the SANE dataset csv, it must contain the name of the file that will be written.
 - _resume_ = Logical. If TRUE, the function resumes from a previous run by reading the existing `fullM_path` file and skipping already processed entries. This is useful when the process is interrupted and needs to be restarted without repeating completed work. If FALSE (default), all entries are processed from the beginning and any existing `fullM_path` file is ignored. Please note that in case of _write.fullM_= FALSE it will not be possible to resume the computation.
--_parallel_ = logical. If TRUE (default), the function runs in parallel using multiple CPU cores, which can significantly speed up the computation on large datasets. If FALSE, the function runs sequentially on a single core.
--_cores.percentage_ = numeric between 0 and 1, specifying the fraction of available CPU cores to use in parallel processing. Default is 0.5 (half of the available cores). If the computed number of cores is less than 1, at least one core will be used.
--_batch_size_ = integer. The number of rows from the dataset to be processed in each block of work. Default is 100. Lower values can reduce memory usage but increase execution time, while higher values may speed up processing but require more memory.
+- _parallel_ = logical. If TRUE (default), the function runs in parallel using multiple CPU cores, which can significantly speed up the computation on large datasets. If FALSE, the function runs sequentially on a single core.
+- _cores.percentage_ = numeric between 0 and 1, specifying the fraction of available CPU cores to use in parallel processing. Default is 0.5 (half of the available cores). If the computed number of cores is less than 1, at least one core will be used.
+- _batch_size_ = integer. The number of rows from the dataset to be processed in each block of work. Default is 100. Lower values can reduce memory usage but increase execution time, while higher values may speed up processing but require more memory.
