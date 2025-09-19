@@ -2,11 +2,11 @@
 This repository contains the R function for the _Selective Anthropogenic Noise Exposure_ index (SANE) computation, a novel acoustic index for measuring anthropogenic noise levels in terrestrial ecosystems, along with a brief tutorial.  For further details check [our paper]().
 
 
-The SANE index combines artificial intelligence-based acoustic classifiers and acoustic index to obtain a reliable measurament of the anthropogenic noise in a recording. Specifically, after the classification of the acoustical dataset, made with BirdNET, the Median Amplitude index is computed for each human noise signal identified; SANE will be the sum of the Mean Amplitude index values for each recording.
+The SANE index combines artificial intelligence-based acoustic classifiers and acoustic index to obtain a reliable measurament of the anthropogenic noise in a recording. Specifically, after the classification of the acoustical dataset, made with BirdNET (step 1), the Median Amplitude index is computed for each human noise signal identified (step 2); SANE is then obtained by summing the Mean Amplitude index values across all recordings (step 3). The sane function in R automatically computes steps 2 and 3 based on the input data obtained in step 1.
 
 ![alt text](https://github.com/matpagle/sane/blob/main/assets/saneworkflow2.png)
 
-As the main strenghts:
+Main strenghts:
 - SANE does not rely on traditional frequency-based discrimination between biophony and anthrophony like other indices, like the NDSI.
 - By laveraging artificial intelligence classifier only target sounds is effectively quantified by the SANE index.
 - The cumulative nature of the SANE allows to give the right importance to both rare disturbance events of high intensity, and frequent disturbance events with low intensity.
