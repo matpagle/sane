@@ -14,7 +14,6 @@ for (pkg in pkgs) {
 }
 
 # ---- 2. DOWNLOAD FILES FROM GITHUB REPO ----
-# We will fetch only what we need using "raw.githubusercontent.com"
 
 base_url <- "https://raw.githubusercontent.com/matpagle/sane/main/"
 
@@ -72,7 +71,7 @@ quiet_predictions$Filename <- "quiet.WAV"
 outputs <- rbind(noisy_predictions,quiet_predictions)
 
 
-# ---- 6. COMPUTE SANE SCORE ----
+# ---- 6. COMPUTE SANE SCORES ----
 
 source("https://raw.githubusercontent.com/matpagle/sane/master/sanefunction.R")
 
