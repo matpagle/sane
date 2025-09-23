@@ -14,7 +14,7 @@ sane <- function(data,
                  sane_path = "output/sane.csv",
                  resume = FALSE,
                  parallel = TRUE,
-                 cores.percentage = 0.5,
+                 cores = 2, # Changed from cores.percentage
                  batch_size = 100) {
   
   # Load required packages; if not installed, install them
@@ -70,9 +70,10 @@ sane <- function(data,
   total_tasks <- length(to_process_idx)
   
   if (parallel) {
-    cores <- floor(parallel::detectCores() * cores.percentage)
+    detected_cores <- parallel::detectCores()
     if (cores < 1) cores <- 1
-    message(sprintf("Parallel mode ON: using %d of %d cores", cores, parallel::detectCores()))
+    if (cores > detected_cores) cores <- detected_cores
+    message(sprintf("Parallel mode ON: using %d of %d cores", cores, detected_cores))
     plan(multisession, workers = cores)
   } else {
     message(sprintf("Parallel mode OFF: using 1 of %d cores", parallel::detectCores()))
@@ -167,6 +168,3 @@ sane <- function(data,
   
   return(sane_df)
 }
-
-
-
