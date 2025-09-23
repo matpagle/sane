@@ -4,7 +4,7 @@
 
 # ---- 1. INSTALL REQUIRED R LIBRARIES ----
 
-pkgs <- c("birdnetR", "tuneR", "seewave", "dplyr", "progress", "tools", "furrr", "future")
+pkgs <- c("birdnetR", "tuneR", "seewave", "dplyr", "progress", "tools", "furrr", "future", "reticulate")
 
 for (pkg in pkgs) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
