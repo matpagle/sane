@@ -79,7 +79,7 @@ sanes <- sane(outputs, threshold = 0.1, class.specific = FALSE, freq.range = c(2
               class.col = "common_name", filename.col = "Filename", start.col = "start",
               end.col = "end", confidence.col = "confidence", audio.dir = audio_dir,
               write.fullM = FALSE, write.sane = TRUE, sane_path = "output/sane.csv", parallel = TRUE,
-              cores.percentage = 0.5)
+              cores = 2)
 
 
 # ---- 7. PRINT RESULTS ----
