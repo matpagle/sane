@@ -23,7 +23,7 @@ We also provided a detailed [tutorial](https://github.com/matpagle/sane/blob/mai
 ## SANE function
 It follows a description of what do you need to run the SANE function, which computes the Mean Amplitude index for every human noise signal identified and that will sum them in order to obtain a SANE value for each recording.
 ### Required libraries
-Make sure to have installed "tuneR", "seewave", "dplyr", "progress", "tools". It is not necessary to load any of them, it will be done by the sane function itself.
+Make sure to have installed "tuneR", "seewave", "dplyr", "progress", "parallel", "tools". It is not necessary to load any of them, it will be done by the sane function itself.
 ### Function arguments
 - _data_ = the dataset containing the information about the location of signals thoughout each recording. It must be structured similarly to the following one.
 
