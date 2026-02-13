@@ -14,7 +14,7 @@ sane <- function(data,
                  sane_path = "output/sane.csv",
                  resume = FALSE,
                  parallel = TRUE,
-                 cores = 2, # Changed from cores.percentage
+                 cores = 2,
                  batch_size = 100) {
   
   # Load required packages; if not installed, install them
@@ -60,7 +60,7 @@ sane <- function(data,
   
   processed_keys <- character(0)
   existing <- NULL
-  if (resume && file.exists(fullM_path)) {
+  if (write.fullM && resume && file.exists(fullM_path)) {
     existing <- read.csv(fullM_path, sep = ";", stringsAsFactors = FALSE)
     processed_keys <- paste(existing$filename, existing$Class, existing$Confidence, sep = "___")
   }
@@ -80,9 +80,10 @@ sane <- function(data,
   }
   
   # File lock per evitare conflitti nella scrittura del csv
-  lockfile <- paste0(fullM_path, ".lock")
+  lockfile <- if (write.fullM) paste0(fullM_path, ".lock") else NULL
   
   safe_write <- function(df) {
+    if (!write.fullM) return(NULL)
     if (requireNamespace("filelock", quietly = TRUE)) {
       lock <- filelock::lock(lockfile, timeout = 5000)
       on.exit(filelock::unlock(lock), add = TRUE)
@@ -92,6 +93,9 @@ sane <- function(data,
                 col.names = !file.exists(fullM_path),
                 append = file.exists(fullM_path))
   }
+  
+  # Storage for results when write.fullM is FALSE
+  results_list <- list()
   
   # Row by row file writing
   process_row <- function(i) {
@@ -118,19 +122,24 @@ sane <- function(data,
                          Confidence = data$Confidence[i])
     row_df[[SANE_col]] <- M_sum
     
-    # Scrittura sicura da dentro ogni worker
-    safe_write(row_df)
+    if (write.fullM) {
+      # Scrittura sicura da dentro ogni worker
+      safe_write(row_df)
+    } else {
+      # Store results in memory
+      return(row_df)
+    }
     return(NULL)
   }
   
   # Progressbar
   if (parallel) {
-    future_map(to_process_idx, process_row, .progress = TRUE)
+    results_list <- future_map(to_process_idx, process_row, .progress = TRUE)
   } else {
     pb <- txtProgressBar(min = 0, max = total_tasks, style = 3)
     for (j in seq_along(to_process_idx)) {
       i <- to_process_idx[j]
-      process_row(i)
+      results_list[[j]] <- process_row(i)
       setTxtProgressBar(pb, j)
     }
     close(pb)
@@ -138,23 +147,33 @@ sane <- function(data,
   
   # full M file, it is necessary for the resume
   completeM <- if (!is.null(existing)) existing else data.frame()
-  if (file.exists(fullM_path)) {
+  if (write.fullM && file.exists(fullM_path)) {
     fullM_new <- read.csv(fullM_path, sep = ";", stringsAsFactors = FALSE)
     completeM <- bind_rows(completeM, fullM_new)
+  } else if (!write.fullM) {
+    # Combine results from memory
+    results_list <- Filter(Negate(is.null), results_list)
+    if (length(results_list) > 0) {
+      completeM <- bind_rows(results_list)
+    }
   }
   
   # SANE
-  if (class.specific) {
-    sane_df <- completeM %>%
-      group_by(filename, Class) %>%
-      summarise(across(starts_with("SANE_"), sum, na.rm = TRUE), .groups = 'drop')
+  if (nrow(completeM) > 0) {
+    if (class.specific) {
+      sane_df <- completeM %>%
+        group_by(filename, Class) %>%
+        summarise(across(starts_with("SANE_"), sum, na.rm = TRUE), .groups = 'drop')
+    } else {
+      sane_df <- completeM %>%
+        group_by(filename) %>%
+        summarise(SANE = sum(SANE, na.rm = TRUE), .groups = 'drop')
+    }
   } else {
-    sane_df <- completeM %>%
-      group_by(filename) %>%
-      summarise(SANE = sum(SANE, na.rm = TRUE), .groups = 'drop')
+    sane_df <- data.frame()
   }
   
-  if (write.sane) {
+  if (write.sane && nrow(sane_df) > 0) {
     write.table(sane_df, file = sane_path,
                 sep = ";", row.names = FALSE, col.names = TRUE)
   }
