@@ -1,52 +1,121 @@
 # SANE
-This repository contains the R function for the _Selective Anthropogenic Noise Exposure_ index (SANE) computation, a novel acoustic index for measuring anthropogenic noise levels in terrestrial ecosystems, along with a brief tutorial.  For further details check [our paper]().
 
+This repository contains the R function for the _Selective Anthropogenic Noise Exposure_ index (SANE) computation, a novel acoustic index for measuring anthropogenic noise levels in terrestrial ecosystems, along with a brief tutorial. For further details check [our paper]().
 
-The SANE index combines artificial intelligence-based acoustic classifiers and acoustic index to obtain a reliable measurament of the anthropogenic noise in a recording. Specifically, after the classification of the acoustical dataset, made with BirdNET (step 1), the Median Amplitude index is computed for each human noise signal identified (step 2); SANE is then obtained by summing the Mean Amplitude index values across all recordings (step 3). The sane function in R automatically computes steps 2 and 3 based on the input data obtained in step 1.
+The SANE index combines artificial intelligence-based acoustic classifiers and an acoustic index to obtain a measurement of anthropogenic noise in a recording. Specifically, after the classification of an acoustic dataset (step 1), the **Median Amplitude** index is computed for each detected anthropogenic sound event (step 2); SANE is then obtained by summing the Median Amplitude values within each recording (step 3). The `sane()` function in R automatically computes steps 2 and 3 based on the input data obtained in step 1.
 
 ![alt text](https://github.com/matpagle/sane/blob/main/assets/saneworkflow2.png)
 
-Main strenghts:
-- SANE does not rely on traditional frequency-based discrimination between biophony and anthrophony like other indices, like the NDSI.
-- By laveraging artificial intelligence classifier only target sounds is effectively quantified by the SANE index.
-- The cumulative nature of the SANE allows to give the right importance to both rare disturbance events of high intensity, and frequent disturbance events with low intensity.
+Main strengths:
+- SANE does not rely on traditional frequency-based discrimination between biophony and anthrophony like other indices (e.g., NDSI).
+- By leveraging an artificial intelligence classifier, only target sounds are quantified by the SANE index.
+- The cumulative nature of SANE allows giving the right importance to both rare disturbance events of high intensity and frequent disturbance events with low intensity.
 
 More details are available from our paper.
 
+---
+
 ## How to run BirdNET for Human Noise recognition
-BirdNET is an amazing tool that can be run through various support, such as [R](https://github.com/birdnet-team/birdnetR) or [python](https://github.com/birdnet-team/birdnet). A user-friendly [GUI-version](https://github.com/birdnet-team/BirdNET-Analyzer) is also available.
+
+BirdNET is a tool that can be run through various supports, such as [R](https://github.com/birdnet-team/birdnetR) or [python](https://github.com/birdnet-team/birdnet). A user-friendly [GUI-version](https://github.com/birdnet-team/BirdNET-Analyzer) is also available.
+
 For Human Noise recognition it is necessary to provide to BirdNET an [_ad-hoc_ species list](https://github.com/matpagle/sane/blob/main/human_noise_list.txt) that includes the anthropophony classes it is currently able to detect. This list can be used on its own or combined with other species lists that include taxa of interest.
+
 We also provided a detailed [tutorial](https://github.com/matpagle/sane/blob/main/tutorialsane.R) with two sample audio-files, showing how to perform BirdNET analysis and calculate SANE values in R.
 
-**NOTE:** Increasing segment overlap has been shown to substantially improve BirdNET's recall for biophony, and our paper shows a neat increase in recall for anthropogenic sounds as well, therefore we strongly recommend the following BirdNET-analyzer set up to maximize initial recall: **minimum precision** = 0.1, **segments overlap** = 2,  **sensitivity** = 1. 
+**NOTE:** Increasing segment overlap has been shown to substantially improve BirdNET's recall for biophony, and our paper shows an increase in recall for anthropogenic sounds as well. Therefore we recommend the following BirdNET-Analyzer set up to maximize initial recall: **minimum precision** = 0.1, **segments overlap** = 2, **sensitivity** = 1.
+
+---
 
 ## SANE function
-It follows a description of what do you need to run the SANE function, which computes the Mean Amplitude index for every human noise signal identified and that will sum them in order to obtain a SANE value for each recording.
+
+This section describes what you need to run the `sane()` function.
+
+### What the function does (current implementation)
+
+For each detection (row) above `threshold`, `sane()`:
+1. reads the corresponding `.wav` segment from `Start` to `End` seconds (`tuneR::readWave()`),
+2. optionally downsamples the segment (`tuneR::downsample()`),
+3. band-pass filters the signal to `freq.range` (`seewave::bwfilter()`),
+4. computes a **Median Amplitude**-based summary via `seewave::M()` and sums the result for that event,
+5. aggregates event values to produce a SANE value per recording (and optionally per class).
+
+> Note: the function currently processes only files whose extension is `.wav` (case-insensitive).
+
 ### Required libraries
-Make sure to have installed "tuneR", "seewave", "dplyr", "progress", "parallel", "tools". It is not necessary to load any of them, it will be done by the sane function itself.
+
+You should have these packages available (the function will attempt to load them and install them if missing):
+- `tuneR`
+- `seewave`
+- `dplyr`
+- `progress`
+- `tools`
+- `furrr`
+- `future`
+
+### Input data
+
+`data` must be a data.frame containing detections (one row per acoustic event), including:
+- a class/label column
+- an audio file identifier (file name or path)
+- confidence score
+- start time (seconds)
+- end time (seconds)
+
+The column names are configurable via function arguments. **Current defaults in the function are:**
+- `class.col = "Common.name"`
+- `filename.col = "filename"`
+- `confidence.col = "Confidence"`
+- `start.col = "Start"`
+- `end.col = "End"`
+
+Example structure (column names shown here are just an example—use `*_col` arguments to match your data):
+
+| filename                                  | Start (s) | End (s) | Common.name | Confidence |
+| ----------------------------------------- | --------- | ------- | ----------- | ---------- |
+| /path/to/20240324_170000.WAV              | 0.0       | 3.0     | Engine      | 0.9807     |
+| /path/to/20240324_170000.WAV              | 3.0       | 6.0     | Gun         | 0.8176     |
+| ...                                       | ...       | ...     | ...         | ...        |
+
+### Audio paths: `full.audio.path` vs `audio.dir`
+
+`sane()` supports two ways of providing audio locations:
+
+- `full.audio.path = TRUE` (default): `filename.col` already contains the full path to the audio file.
+- `full.audio.path = FALSE`: `filename.col` contains only file names (or relative paths) and you must provide `audio.dir`. In this case, the function builds paths with `file.path(audio.dir, filename)`.
+
 ### Function arguments
-- _data_ = the dataset containing the information about the location of signals thoughout each recording. It must be structured similarly to the following one.
 
-| Filename                                 | Start (s) | End (s) | Class  | Confidence |
-| ---------------------------------------- | --------- | ------- | ------ | ---------- |
-| Ada-Borghese-1/AB01/20240324\_170000.WAV | 0.0       | 3.0     | Engine | 0.9807     |
-| Ada-Borghese-1/AB01/20240324\_170000.WAV | 3.0       | 6.0     | Gun    | 0.8176     |
-| ...                                      | ...       | ...     | ...    | ...        |
+- `data`: data.frame of detections (one row per acoustic event).
+- `threshold` (default `0.8`): minimum confidence required to include an event.
+- `class.specific` (default `FALSE`):  
+  - If `FALSE`, compute a single `SANE` per file.  
+  - If `TRUE`, compute SANE separately for each class. Output column names are built as `SANE_<Class>` (with non-alphanumeric characters converted to `_`).
+- `freq.range` (default `c(20, 20000)`): numeric vector length 2 (Hz), band-pass filter range `c(low, high)`.
+- `class.col` (default `"Common.name"`): name of the column in `data` containing the class/label.
+- `filename.col` (default `"filename"`): name of the column in `data` containing the audio filename or path.
+- `start.col` (default `"Start"`): name of the column containing event start time (seconds).
+- `end.col` (default `"End"`): name of the column containing event end time (seconds).
+- `confidence.col` (default `"Confidence"`): name of the column containing confidence values.
+- `audio.dir` (default `NULL`): directory containing audio files (used only if `full.audio.path = FALSE`).
+- `full.audio.path` (default `TRUE`): if `TRUE`, `filename.col` already contains full file paths; if `FALSE`, paths are built using `audio.dir`.
+- `downsample` (default `TRUE`): if `TRUE`, downsample each extracted audio segment before analysis.
+- `downsample.freq` (default `48000`): target sampling rate (Hz) used when `downsample = TRUE`.
+- `write.fullM` (default `TRUE`): if `TRUE`, write event-level results (per detection) to `fullM_path` (CSV separator is `;`). This supports resuming long runs.
+- `fullM_path` (default `"output/full_M.csv"`): output path for the event-level CSV (separator is `;`).
+- `write.sane` (default `TRUE`): if `TRUE`, write the aggregated per-file SANE table to `sane_path` (CSV separator is `;`).
+- `sane_path` (default `"output/sane.csv"`): output path for the final SANE CSV (separator is `;`).
+- `resume` (default `FALSE`): if `TRUE` and `fullM_path` exists (and `write.fullM = TRUE`), skip events already present in that file.
+- `parallel` (default `TRUE`): if `TRUE`, process events in parallel using `future/furrr`.
+- `cores` (default `2`): number of worker processes to use when `parallel = TRUE`.
+- `batch_size` (default `100`): currently not used in the code.
 
-- _threshold_ = the minimum confidence score to achieve the desired level of precision (see "BirdNET validation" paragraph in [our paper]()). Default is 0.1. 
-- _class.specific_ = logical. This argument determines if the SANE computed will be only global, i.e., of the complessive anthrophony, or global and one for each class of disturbance. Default is FALSE. When "TRUE", the final dataset will include one column for each disturbance class whose name will consists in "SANE" + "Class name".
-- _freq.range_ = a vector of length 2 to specify the frequency limits of the analysis (in Hz). Default is the audible spectrum for humans (20-20000 Hz). 
-- _class.col_ = a character that specifies the name of the column in data that contains class labels. Default is "Class".
-- _filename.col_ = a character that specifies the name of the column in data that contains audio file's path and, consequently, its univoque identifier. Default is "Filename".
-- _start.col_ = a character that specifies the name of the column in data that contains the temporal information about the start of a specific acoustic signal/event. Default is "Start..s.". The column must be numeric, indicating the number of seconds from the beginning of the recording.
-- _end.col_ = a character that specifies the name of the column in data that contains the temporal information about the end of a specific acoustic signal/event. Default is "End..s.". The column must be numeric, indicating the number of seconds from the beginning of the recording.  
-- _confidence.col_ = a character that specifies the name of the column in data that contains the confidence score associated with a certain acoustic signal/event. Default is "Confidence". It must be numeric.
-- _audio.dir_ = the path of the cartel containing the audio files. If the cartel contains sub-cartel, be sure that your "Filename" column contain rest of each audio path.
-- _write.fullM_ = logical, if TRUE (Default) a csv will be written with all the M indices computed associeted with their acoustic signal. The csv will be written step-by-step, therefore Windows-Users should not open the csv during the computation to avoid conflicts. When FALSE no csv will be written.
-- _fullM_path_ = the path for the M dataset csv, it must contain the name of the file that will be written.
-- _write.sane_ = logical, if TRUE (Default) a csv will be written with all the SANE indices computed associeted with the respective audio recording. When FALSE no csv will be written.
-- _sane_path_ = the path for the SANE dataset csv, it must contain the name of the file that will be written.
-- _resume_ = Logical. If TRUE, the function resumes from a previous run by reading the existing `fullM_path` file and skipping already processed entries. This is useful when the process is interrupted and needs to be restarted without repeating completed work. If FALSE (default), all entries are processed from the beginning and any existing `fullM_path` file is ignored. Please note that in case of _write.fullM_= FALSE it will not be possible to resume the computation.
-- _parallel_ = logical. If TRUE (default), the function runs in parallel using multiple CPU cores, which can significantly speed up the computation on large datasets. If FALSE, the function runs sequentially on a single core.
-- _cores.percentage_ = numeric between 0 and 1, specifying the fraction of available CPU cores to use in parallel processing. Default is 0.5 (half of the available cores). If the computed number of cores is less than 1, at least one core will be used.
-- _batch_size_ = integer. The number of rows from the dataset to be processed in each block of work. Default is 100. Lower values can reduce memory usage but increase execution time, while higher values may speed up processing but require more memory.
+### Outputs
+
+The function returns a data.frame:
+- If `class.specific = FALSE`: one row per `filename` with a `SANE` column.
+- If `class.specific = TRUE`: grouped by `filename` and `Class`, with per-class `SANE_<Class>` columns.
+
+If enabled:
+- `fullM_path` stores event-level results (separator `;`).
+- `sane_path` stores aggregated SANE results (separator `;`).
