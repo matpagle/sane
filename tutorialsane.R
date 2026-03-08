@@ -81,13 +81,14 @@ outputs <- rbind(noisy_predictions, quiet_predictions)
 
 # ---- 7. COMPUTE SANE SCORES ----
 
-source("https://raw.githubusercontent.com/matpagle/sane/master/sanefunction.R")
+# NOTE: Use the version of the function on the same branch as this tutorial.
+source("https://raw.githubusercontent.com/matpagle/sane/main/sanefunction.R")
 
 # Output file will also be in tempdir (not cluttering user disk)
 sane_output_file <- file.path(tempdir(), "sane.csv")
 
 sanes <- sane(
-  outputs,
+  data = outputs,
   threshold = 0.1,
   class.specific = FALSE,
   freq.range = c(20, 20000),
@@ -97,9 +98,13 @@ sanes <- sane(
   end.col = "end",
   confidence.col = "confidence",
   audio.dir = audio_dir,
+  full.audio.path = FALSE,
+  downsample = TRUE,
+  downsample.freq = 48000,
   write.fullM = FALSE,
   write.sane = TRUE,
   sane_path = sane_output_file,
+  resume = FALSE,
   parallel = TRUE,
   cores = 2
 )
