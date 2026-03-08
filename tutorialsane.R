@@ -5,7 +5,7 @@
 # ---- 1. INSTALL REQUIRED R LIBRARIES ----
 
 # List of required packages
-pkgs <- c("birdnetR", "tuneR", "seewave", "dplyr", "progress", "tools", "furrr", "future", "reticulate")
+pkgs <- c("birdnetR", "tuneR", "seewave", "dplyr", "progress", "tools", "furrr", "future", "parallel", "reticulate")
 
 # Install and load each package if not already installed
 for (pkg in pkgs) {
